@@ -59,14 +59,19 @@ def get_address_by_student(id):
     )
 
 
-@app.route("/town_city", methods=["POST"])
+@app.route("/students", methods=["POST"])
 def add_student():
     cur = mysql.connection.cursor()
     info = request.get_json()
-    city_name = info["city_name"]
+    first_name = info["first_name"]
+    last_name = info["last_name"]
+    middle_name = info["middle_name"]
+    gender = info["gender"]
+    birthday= info["birthday"]
     cur.execute(
-        """ INSERT INTO town_city (city_name) VALUE (%s)""",
-        (city_name),
+        """ INSERT INTO students (first_name, last_name, middle_name, gender, birthday) 
+        VALUE (%s, %s, %s, %s, %s)""",
+        (first_name, last_name, middle_name, gender, birthday),
     )
     mysql.connection.commit()
     print("row(s) affected :{}".format(cur.rowcount))
@@ -74,7 +79,7 @@ def add_student():
     cur.close()
     return make_response(
         jsonify(
-            {"message": "town_city added successfully", "rows_affected": rows_affected}
+            {"message": "student added successfully", "rows_affected": rows_affected}
         ),
         201,
     )
