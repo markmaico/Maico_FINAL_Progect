@@ -20,21 +20,21 @@ class MyAppTests(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data.decode(), "<p>Hello, World!</p>")
 
-    def test_getactors(self):
+    def test_getstudents(self):
 	hdr = {
             "Authorization": "Basic " + b64encode(b"username:psswrd").decode()
         }
-        response = self.app.get("/actors", headers = hdr)
+        response = self.app.get("/students", headers = hdr)
         self.assertEqual(response.status_code, 200)
-        self.assertTrue("PENELOPE" in response.data.decode())
+        self.assertTrue("Wyatty" in response.data.decode())
 
-    def test_getactors_by_id(self):
+    def test_getstudents_by_id(self):
 	hdr = {
             "Authorization": "Basic " + b64encode(b"username:psswrd").decode()
         }
-        response = self.app.get("/actors/88", headers = hdr)
+        response = self.app.get("/students/1", headers = hdr)
         self.assertEqual(response.status_code, 200)
-        self.assertTrue("PESCI" in response.data.decode())
+        self.assertTrue("Maico" in response.data.decode())
 
 
 if __name__ == "__main__":
