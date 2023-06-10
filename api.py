@@ -5,7 +5,7 @@ app = Flask(__name__)
 app.config["MYSQL_HOST"] = "localhost"
 app.config["MYSQL_USER"] = "root"
 app.config["MYSQL_PASSWORD"] = ""
-app.config["MYSQL_DB"] = "schooldb"
+app.config["MYSQL_DB"] = "studentsdb"
 
 app.config["MYSQL_CURSORCLASS"] = "DictCursor"
 
@@ -27,45 +27,46 @@ def data_fetch(query):
 
 @app.route("/students", methods=["GET"])
 def get_actors():
-    data = data_fetch("""select * from student""")
+    data = data_fetch("""select * from students""")
     return make_response(jsonify(data), 200)
 
 
 @app.route("/students/<int:id>", methods=["GET"])
 def get_student_by_id(id):
-    data = data_fetch("""SELECT * FROM student where student_id = {}""".format(id))
+    data = data_fetch("""SELECT * FROM students where id = {}""".format(id))
     return make_response(jsonify(data), 200)
 
 
-@app.route("/actors/<int:id>/movies", methods=["GET"])
-def get_movies_by_actor(id):
+@app.route("/students/<int:id>/address", methods=["GET"])
+def get_address_by_student(id):
     data = data_fetch(
         """
-        SELECT film.title, film.release_year 
-        FROM actor 
-        INNER JOIN film_actor
-        ON actor.actor_id = film_actor.actor_id 
-        INNER JOIN film
-        ON film_actor.film_id = film.film_id 
-        WHERE actor.actor_id = {}
+        SELECT students.first_name, students.last_name, town_city.city_name, province.province_name
+        FROM students
+        INNER JOIN student_details
+        ON students.id = student_details.student_id
+        INNER JOIN town_city
+        ON student_details.town_city = town_city.id
+        INNER JOIN province
+        ON student_details.province = province.id
+        WHERE student_details.student_id = {}
     """.format(
             id
         )
     )
     return make_response(
-        jsonify({"actor_id": id, "count": len(data), "movies": data}), 200
+        jsonify({"student_id": id, "count": len(data), "address": data}), 200
     )
 
 
-@app.route("/actors", methods=["POST"])
-def add_actor():
+@app.route("/town_city", methods=["POST"])
+def add_student():
     cur = mysql.connection.cursor()
     info = request.get_json()
-    first_name = info["first_name"]
-    last_name = info["last_name"]
+    city_name = info["city_name"]
     cur.execute(
-        """ INSERT INTO actor (first_name, last_name) VALUE (%s, %s)""",
-        (first_name, last_name),
+        """ INSERT INTO town_city (city_name) VALUE (%s)""",
+        (city_name),
     )
     mysql.connection.commit()
     print("row(s) affected :{}".format(cur.rowcount))
@@ -73,20 +74,20 @@ def add_actor():
     cur.close()
     return make_response(
         jsonify(
-            {"message": "actor added successfully", "rows_affected": rows_affected}
+            {"message": "town_city added successfully", "rows_affected": rows_affected}
         ),
         201,
     )
 
 
-@app.route("/actors/<int:id>", methods=["PUT"])
-def update_actor(id):
+@app.route("/students/<int:id>", methods=["PUT"])
+def update_student(id):
     cur = mysql.connection.cursor()
     info = request.get_json()
     first_name = info["first_name"]
     last_name = info["last_name"]
     cur.execute(
-        """ UPDATE actor SET first_name = %s, last_name = %s WHERE actor_id = %s """,
+        """ UPDATE students SET first_name = %s, last_name = %s WHERE id = %s """,
         (first_name, last_name, id),
     )
     mysql.connection.commit()
@@ -94,27 +95,27 @@ def update_actor(id):
     cur.close()
     return make_response(
         jsonify(
-            {"message": "actor updated successfully", "rows_affected": rows_affected}
+            {"message": "student updated successfully", "rows_affected": rows_affected}
         ),
         200,
     )
 
 
-@app.route("/actors/<int:id>", methods=["DELETE"])
-def delete_actor(id):
+@app.route("/students/<int:id>", methods=["DELETE"])
+def delete_student(id):
     cur = mysql.connection.cursor()
-    cur.execute(""" DELETE FROM actor where actor_id = %s """, (id,))
+    cur.execute(""" DELETE FROM students where id = %s """, (id,))
     mysql.connection.commit()
     rows_affected = cur.rowcount
     cur.close()
     return make_response(
         jsonify(
-            {"message": "actor deleted successfully", "rows_affected": rows_affected}
+            {"message": "student deleted successfully", "rows_affected": rows_affected}
         ),
         200,
     )
 
-@app.route("/actors/format", methods=["GET"])
+@app.route("/students/format", methods=["GET"])
 def get_params():
     fmt = request.args.get('id')
     foo = request.args.get('aaaa')
