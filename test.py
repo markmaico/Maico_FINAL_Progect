@@ -13,26 +13,17 @@ class MyAppTests(unittest.TestCase):
         warnings.simplefilter("ignore", category=DeprecationWarning)
 
     def test_index_page(self):
-	hdr = {
-            "Authorization": "Basic " + b64encode(b"username:psswrd").decode()
-        }
-        response = self.app.get("/", headers = hdr)
+        response = self.app.get("/")
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data.decode(), "<p>Hello, World!</p>")
 
     def test_getstudents(self):
-	hdr = {
-            "Authorization": "Basic " + b64encode(b"username:psswrd").decode()
-        }
-        response = self.app.get("/students", headers = hdr)
+        response = self.app.get("/students")
         self.assertEqual(response.status_code, 200)
         self.assertTrue("Wyatty" in response.data.decode())
 
     def test_getstudents_by_id(self):
-	hdr = {
-            "Authorization": "Basic " + b64encode(b"username:psswrd").decode()
-        }
-        response = self.app.get("/students/1", headers = hdr)
+        response = self.app.get("/students/1")
         self.assertEqual(response.status_code, 200)
         self.assertTrue("Maico" in response.data.decode())
 
